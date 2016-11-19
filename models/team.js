@@ -1,8 +1,8 @@
 'use strict';
 
 const db = require('./_db'),
-	  Sequelize = require('sequelize'),
-	  Hunter = require('./hunter');
+	  Sequelize = require('sequelize');
+	  // Hunter = require('./hunter');
 
 
 // CONVENTIONALLY MODEL VARIABLE NAMES ARE CAPITALIZED
@@ -16,3 +16,4 @@ const Team = db.define('team', {  // takes name and schema object -- defines fie
 
 
 module.exports = Team; // make sure you import and export what you intend to!!!
+// CHECK OUT #TPOTW 1 -- can re-slack out later

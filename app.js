@@ -17,6 +17,7 @@ app.use(bodyParser.json());  // parses bodies in JSON format
 
 // STATIC ROUTES
 app.use(express.static(__dirname + '/public'));  // EXAMPLE: statically serves public folder
+app.use('/files', express.static('/public/staticFiles')); // Statically serves staticFiles folder mounted on route 'files'
 
 
 
@@ -38,7 +39,23 @@ Hunter.sync()  // Create or sync the Hunter table based on the Hunter model's sc
 
 
 
+// MOUNTING
 app.use('/', routes); // ANY REQUESTS GO TO ROUTES ROUTER; MOUNTED ON '/'
+
+
+
+// EXAMPLE OF SAVING PARAMS -- APP.PARAM: http://expressjs.com/en/4x/api.html#app.param
+app.param('teamId', function (request, response, next, id) {
+	request.body.teamId = parseInt(id, 10);  // ID WILL BE A STRING
+	next();
+});
+app.use('/:teamId/agents', agents); // Passes to `agents` router
+
+
+// IN `agents.js`, MAYBE IN AN `app.use`:
+// if (!request.body.teamId) next(err);  // Defensive programming
+// const teamId = request.body.teamId;  // Access ID once at top of page
+
 
 
 
@@ -63,6 +80,11 @@ app.get('/errEnd', function(request, response, next){
 	const err = Error("You're not allowed in here!");
 	err.status = 403;
 	throw err;
+
+	// ALSO:
+	// const err = new Error("Verboten"); // JS way
+	// err.status = 403;
+	// err.message = "No boys allowed"
 
 	// ALT USING EXTRAPOLATED ERROR HANDLING FUNCTION:
 	throw HTTPerror(403, "You shall not pass!");  // WITH AYSYNC, EXPRESS HANGS BECAUSE NO RESPONSE IS SENT
@@ -99,10 +121,10 @@ function HTTPerror (status, message) {
 // ERROR-HANDLING MIDDLEWARE SHOULD EITHER CALL `next` WITH THE ERROR OR SEND A RESPONSE (USUALLY NOT BOTH)
 app.use(function(err, request, response, next) {  // WE KNOW IT'S AN ERROR HANDLER BECAUSE IT TAKES 4 ARGUMENTS
 	console.error(err);
-	response.status(err.status || 500).send(err.message);  // SETS STATUS TO SPECIFIED STATUS OR DEFAULT 500 AND SENDS ERROR RESPONSE
+	// SETS STATUS TO SPECIFIED STATUS OR DEFAULT 500, SETS MSG TO SPECIFIED OR DEFAULT AND SENDS ERROR RESPONSE
+	response.status(err.status || 500).send(err.message || "I have failed -- knock on wood");
 });
 
 
 
-// EXPORTING IS BUILT-IN FOR TEST:
-// module.exports = app;
+module.exports = app;

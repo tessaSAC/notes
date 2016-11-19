@@ -2,8 +2,8 @@
 
 
 const db = require('./_db'),
-      Sequelize = require('sequelize'),
-      Team = require('./team');
+      Sequelize = require('sequelize');
+      // Team = require('./team');
 
 
 const Hunter = db.define('hunter', {
@@ -65,7 +65,7 @@ const Hunter = db.define('hunter', {
 
 
 // ASSOCIATION:
-Hunter.belongsTo(Team, { as: 'agent' });  // Each Hunter is stored to Team table as a foreign key -- referenced as 'agent'
+// Hunter.belongsTo(Team, { as: 'agent' });  // Each Hunter is stored to Team table as a foreign key -- referenced as 'agent'
 
 
 

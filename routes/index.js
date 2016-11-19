@@ -5,18 +5,41 @@ const express = require('express'),
 
 
 
+
+// ASSOCIATIONS:
+Hunter.belongsTo(Team, { as: 'agent' });  // Each Hunter is stored to Team table as a foreign key -- referenced as 'agent'
+Team.hasMany(Hunter);
+// TIP: *DON'T* CROSS STREAMS (EXCEPT `belongsToMany`)
+
+
+
+
 // WHAT IF WE WANT TO GET *ALL* THE HUNTERS?
 router.get('/hunters', function(request, response, next) {
     Hunter.findAll() // FINDS ALL HUNTERS AND RETURNS A *PROMISE* FOR THEM
-        .then(function(hunters) { // IN THE CALLBACK `hunters` EXIST AND WE CAN SEND THEM
-            response.send(hunters);
-            // `response.send` AND `response.json` ARE GENERALLY THE SAME BUT `.json` IS MORE SEMANTIC; TELLS THE DEVELOPER WHAT YOU INTEND TO HAVE HAPPEN
-        })
-        // ALT:
-        // .catch(function(error) {
-        // 		response.send(404);
-        // })
-        .catch(next);  // If we pass  Express' default `next` function a truthy object it will send that object to the NEXT error handler
+    .then(function(hunters) { // IN THE CALLBACK `hunters` EXIST AND WE CAN SEND THEM
+        response.send(hunters);
+        // `response.send` AND `response.json` ARE GENERALLY THE SAME BUT `.json` IS MORE SEMANTIC; TELLS THE DEVELOPER WHAT YOU INTEND TO HAVE HAPPEN
+    })
+    // ALT:
+    // .catch(function(error) {
+    // 		response.send(404);
+    // })
+    .catch(next);  // If we pass  Express' default `next` function a truthy object it will send that object to the NEXT error handler
+});
+
+
+// WHAT IF WE WANT TO GET ONLY THE TEAMMATES?
+router.get('/hunters/:id/teammates', function(request, response, next) {
+    Hunter.findAll({  // OPTIONS OBJECT
+        where: {
+            id: { $ne: this.id }
+        }
+    })
+    .then(function(teammates) {
+        response.send(teammates);
+    })
+    .catch(next);
 });
 
 
@@ -122,6 +145,7 @@ router.put('/hunters/:id', function(request, response, next) {
 
 
 
+
 // INCLUDE: A WAY TO DO
 // SELECT * (i.e. ALL the fields) FROM hunter JOIN teams ON hunter.agencyId = teams.id WHERE hunter.name = "Robin";
 // *DON'T* NEED TO JOIN B/C SEQUELIZE ALREADY KNOWS FROM `Hunter belongsTo Team`
@@ -143,6 +167,8 @@ Hunter.findOne({
 
 // TL;DR A WAY TO AVOID DOING TWO FINDS ON TWO DIFFERENT TABLES -- FINDS THE AGENT *WITH* THE TEAM IN A SINGLE STEP
 // GENERALLY DOING `JOIN`S LIKE THIS IS BETTER THAN QUERYING THE DB MULTIPLE TIMES
+
+
 
 
 // DON'T FORGET TO EXPORT THE ROUTER!!!
