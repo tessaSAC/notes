@@ -32,6 +32,9 @@ const Hunter = db.define('hunter', {
 
 }, {
 
+
+    // METHODS:
+
     getterMethods: { // `this`: THE INSTANCE
         mainPower: function() {
             return this.powers.length  // IF NO POWERS `return` EMPTY STRING
@@ -59,7 +62,11 @@ const Hunter = db.define('hunter', {
 
 });
 
+
+
+// ASSOCIATION:
 Hunter.belongsTo(Team, { as: 'agent' });  // Each Hunter is stored to Team table as a foreign key -- referenced as 'agent'
+
 
 
 module.exports = Hunter; // DON'T FORGET TO EXPORT

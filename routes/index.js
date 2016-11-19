@@ -1,13 +1,16 @@
 const express = require('express'),
-      router = express.Router(),
+      router = express.Router(),  // BUILD A ROUTER
       Hunter = require('../models/hunter'),
       Team = require('../models/team');
 
-// WHAT IF WE WANT TO GET ALL THE HUNTERS?
+
+
+// WHAT IF WE WANT TO GET *ALL* THE HUNTERS?
 router.get('/hunters', function(request, response, next) {
     Hunter.findAll() // FINDS ALL HUNTERS AND RETURNS A *PROMISE* FOR THEM
         .then(function(hunters) { // IN THE CALLBACK `hunters` EXIST AND WE CAN SEND THEM
             response.send(hunters);
+            // `response.send` AND `response.json` ARE GENERALLY THE SAME BUT `.json` IS MORE SEMANTIC; TELLS THE DEVELOPER WHAT YOU INTEND TO HAVE HAPPEN
         })
         // ALT:
         // .catch(function(error) {
@@ -16,24 +19,28 @@ router.get('/hunters', function(request, response, next) {
         .catch(next);  // If we pass  Express' default `next` function a truthy object it will send that object to the NEXT error handler
 });
 
+
+
 // EXAMPLE OF USING PARAMS:
 router.get('/hunters/:id', function(request, response, next) {
     // ALT: Hunter.findOne( { where: id: request.params.id })
     Hunter.findById(request.params.id)
     	// RETURNS A PROMISE FOR AN ARTICLE
-        .then(function(hunter) {
+        .then(function(foundHunter) {
         	// THREE POSSIBILITIES:
         	// 1. Find the hunter
         	// 2. Server error
-        	// 3. Find no hunter = successful query that went nowhere -- therefore it will send 200!!
-        	hunter
-        		? response.send(hunter)
+        	// 3. Find no hunter = successful query that went nowhere -- therefore it will send `200`!!
+        	foundHunter
+        		? response.send(foundHunter)
         		: response.sendStatus (404);
         })
         .catch(next);
 });
 
-// don't understand what this is doing
+
+
+// ADD A NEW HUNTER:
 router.post('/hunters', function(request, response, next) {
 	// DATA COMES IN ON THE REQUEST BODY
 	// e.g.:
@@ -65,6 +72,9 @@ router.post('/hunters', function(request, response, next) {
 });
 
 
+
+
+// UPDATE AN ALREADY EXISTING HUNTER:
 
 // PUT = TO *CREATE* OR *MODIFY*
 // EXAMPLE: WANT TO UPDATE NAME
@@ -110,6 +120,29 @@ router.put('/hunters/:id', function(request, response, next) {
     .catch(next);
 });
 
+
+
+// INCLUDE: A WAY TO DO
+// SELECT * (i.e. ALL the fields) FROM hunter JOIN teams ON hunter.agencyId = teams.id WHERE hunter.name = "Robin";
+// *DON'T* NEED TO JOIN B/C SEQUELIZE ALREADY KNOWS FROM `Hunter belongsTo Team`
+
+Hunter.findOne({
+	where: {
+		name: request.params.hunterName
+	},
+	// AND WHEN YOU GET THAT TEAM, BRING ALONG ALL THE TEAM INFO TOO
+	include: [  // TAKES AN ARRAY TO SPECIFY WHERE TO MAKE THE `JOIN`
+		{ model: Team, as: 'agency'  // ALIASES AS `agent`
+		// YOU COULD ALSO NEST THEM:
+		// include: [
+		// 		{model: someModel, as: 'someAlias'}
+		// ]
+		}
+	]
+});
+
+// TL;DR A WAY TO AVOID DOING TWO FINDS ON TWO DIFFERENT TABLES -- FINDS THE AGENT *WITH* THE TEAM IN A SINGLE STEP
+// GENERALLY DOING `JOIN`S LIKE THIS IS BETTER THAN QUERYING THE DB MULTIPLE TIMES
 
 
 // DON'T FORGET TO EXPORT THE ROUTER!!!
