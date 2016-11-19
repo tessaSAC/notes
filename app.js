@@ -16,7 +16,7 @@ app.use(bodyParser.json());  // parses bodies in JSON format
 app.use(express.static(__dirname + '/public'));  // EXAMPLE: statically serves public folder
 
 
-app.use('/', routes);
+app.use('/', routes); // ANY REQUESTS GO TO ROUTES ROUTER
 
 // custom error handling -- don't understand what this is doing
 app.use(function(err, req, res, next) {

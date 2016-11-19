@@ -10,16 +10,19 @@ const Hunter = db.define('Hunter', {
 
     name: {
         type: Sequelize.STRING,
-        allowNull: false,
+        // EXAMPLE OF CUSTOM VALIDATION: DOESN'T ALLOW EMPTY STRING:
         validate: {
             notEmpty: true
         }
     },
     powers: {
         type: Sequelize.ARRAY(Sequelize.STRING),
+        // EXAMPLE OF SETTING DEFAULT VALUE
         defaultValue: [],
+        // GET: RUNS WHEN WE TRY TO ACCESS THIS PROPERTY
+        // DON'T SIMPLY USE `this.powers` BC IT WILL CREATE AN INFINITE LOOP
         get: function() {
-            return this.getDataValue('powers').join(', ');
+            return this.getDataValue('powers').join(', ');  // SEQUELIZE TRICK `this.getDataValue` gets the data w/o infinite loop
         }
     },
     timesDeployed: {
@@ -29,32 +32,33 @@ const Hunter = db.define('Hunter', {
 
 }, {
 
-    getterMethods: { // `this`: the instance
+    getterMethods: { // `this`: THE INSTANCE
         mainPower: function() {
             if (!this.powers.length) return '';
             return this.powers[0];
         }
     },
-    instanceMethods: { // `this`: the model
-        callMainPower: function() {
-            this.powers = this.powers[0];
+    instanceMethods: { // `this`: THE MODEL/CLASS
+        isolateMainPower: function() {
+            this.powers = this.powers[0];  // MODIFIES THE *INSTANCE* -- DOES *NOT* SAVE TO THE DATABASE!!
         }
     },
-    classMethods: { // `this`: the class
+    classMethods: { // `this`: THE MODEL/CLASS
         findByMainPower: function(power) {
-            return this.findOne({ where: { mainPower: power } });
+            return this.findOne({ where: { // WITHOUT `return` GETS PROMISE AND DOESN'T DO ANYTHING WITH IT
+                mainPower: power
+            } });
         }
     },
-    hooks: { // `this`: the instance
-        // note that the `beforeSave` hook is documented but not yet released
-        beforeUpdate: function(hunter) {
+    hooks: { // NO `this`
+        beforeUpdate: function(hunter) { // HOOKS OPERATE ON INSTANCE BUT IT IS IS PASSED IN TO THE HOOK FUNCTION AS AN ARGUMENT
             ++hunter.timesDeployed;
         }
     }
 
 });
 
-Hunter.belongsTo(Team, { as: 'agent' });
+Hunter.belongsTo(Team, { as: 'agent' });  // Each Hunter is stored to Team table as a foreign key -- referenced as 'agent'
 
 
 module.exports = Hunter; // DON'T FORGET TO EXPORT
