@@ -6,11 +6,11 @@ const db = require('./_db'),
       Team = require('./team');
 
 
-const Hunter = db.define('Hunter', {
+const Hunter = db.define('hunter', {
 
     name: {
         type: Sequelize.STRING,
-        // EXAMPLE OF CUSTOM VALIDATION: DOESN'T ALLOW EMPTY STRING:
+        // EXAMPLE OF SPECIAL SEQUELIZE-ONLY VALIDATION: DOESN'T ALLOW EMPTY STRING:
         validate: {
             notEmpty: true
         }
@@ -34,8 +34,9 @@ const Hunter = db.define('Hunter', {
 
     getterMethods: { // `this`: THE INSTANCE
         mainPower: function() {
-            if (!this.powers.length) return '';
-            return this.powers[0];
+            return this.powers.length  // IF NO POWERS `return` EMPTY STRING
+                ? this.powers[0]
+                : '';
         }
     },
     instanceMethods: { // `this`: THE MODEL/CLASS

@@ -1,6 +1,7 @@
 const express = require('express'),
       router = express.Router(),
-      Hunter = require('../models/hunter');
+      Hunter = require('../models/hunter'),
+      Team = require('../models/team');
 
 // WHAT IF WE WANT TO GET ALL THE HUNTERS?
 router.get('/hunters', function(request, response, next) {
@@ -108,4 +109,8 @@ router.put('/hunters/:id', function(request, response, next) {
     })
     .catch(next);
 });
+
+
+
+// DON'T FORGET TO EXPORT THE ROUTER!!!
 module.exports = router;

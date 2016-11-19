@@ -3,7 +3,10 @@ const express = require('express'),
 	  morgan = require('morgan'),
 	  bodyParser = require('body-parser'),
 	  chalk = require('chalk'),
-	  routes = require('./routes');
+	  routes = require('./routes'),
+	  Hunter = require('../models/hunter'),
+	  Team = require('../models/team');
+
 
 // LOGGING
 app.use(morgan('dev'));  // logs incoming requests
@@ -16,7 +19,30 @@ app.use(bodyParser.json());  // parses bodies in JSON format
 app.use(express.static(__dirname + '/public'));  // EXAMPLE: statically serves public folder
 
 
+
+
+
+
+// EXAMPLE OF SETTING UP SERVER TO LISTEN AND SYNC MODELS TABLE
+Hunter.sync()  // Create or sync the Hunter table based on the Hunter model's schema
+.then(function() {
+	return Team.sync();  // Now that the Hunter model is created/synced, create/sync the Team table based on the Team model's schema
+})
+.then(function() {
+	app.listen(3001, function() {  // Now that everything is synced have our server start listening
+		console.log('Server is listening on port 3001!');
+	});
+});
+
+
+
+
+
 app.use('/', routes); // ANY REQUESTS GO TO ROUTES ROUTER
+
+
+
+
 
 // custom error handling -- don't understand what this is doing
 app.use(function(err, req, res, next) {
@@ -36,4 +62,7 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500).end();
 });
 
+
+
+// EXPORTING IS BUILT-IN FOR TEST:
 module.exports = app;

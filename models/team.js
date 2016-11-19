@@ -5,12 +5,13 @@ const db = require('./_db'),
 	  Hunter = require('./hunter');
 
 
-const Team = db.define('Team', {
+// CONVENTIONALLY MODEL VARIABLE NAMES ARE CAPITALIZED
+const Team = db.define('team', {  // takes name and schema object -- defines fields in object
     name: {
-    	type: Sequelize.STRING,
-    	defautValue: 'Solomon'
-    },
-    members: Sequelize.ARRAY()  // How to add members?!
+    	type: Sequelize.STRING,  // A Sequelize function as opposed to a primitive type
+    	defaultValue: 'Solomon'
+    }
+    // , members: Sequelize.ARRAY()  // How to add members?!
 });
 
 
